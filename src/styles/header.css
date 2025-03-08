@@ -1,12 +1,11 @@
 header {
-  background-color: var(--gray-900);
   background-image: url("https://images.unsplash.com/photo-1599586120429-48281b6f0ece?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
-
-  height: 200px;
+  background-color: var(--gray-900);
+  height: 150px;
 }
 
 header .topBar {
-  padding: 10px;
+  padding: 20px 8vw;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -25,15 +24,27 @@ Avatar {
 .userNameDisplay {
   background-color: var(--gray-700-75);
   backdrop-filter: blur(10px);
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.5rem;
   border-radius: 15px;
+  /* border: 0.1px solid var(--gray-600-75);
+  border-top: 0.01px solid var(--white-75); */
 }
 
 #welcome {
   margin-inline: 8vw;
   background-color: var(--gray-600-75);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(5px);
   padding: 0.5rem 1rem;
   border-radius: 15px;
-  color: var(--gray-900);
+  color: var(--white);
+  /* border: 0.1px solid var(--gray-600-75); */
+  border-top: 0.01px solid var(--white-75);
+}
+
+header .logo {
+  user-select: none;
+}
+header .logo img {
+  height: 50px;
+  pointer-events: none;
 }

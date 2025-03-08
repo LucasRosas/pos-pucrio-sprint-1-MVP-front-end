@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="src/styles/main.css" />
-
-    <title>Document</title>
+    <link rel="icon" type="image/png" href="public/favicon.png" />
+    <title>Reserver</title>
   </head>
   <body>
     <noscript>
@@ -17,11 +17,26 @@
     </noscript>
     <header>
       <div class="topBar">
-        <div>Logo</div>
+        <div class="logo">
+          <img src="/public/logo.svg" alt="" srcset="" />
+        </div>
         <div class="flex-center-center gap">
-          <div class="userName userNameDisplay">Lucas</div>
+          <div class="userName userNameDisplay">Lucas Rosas</div>
           <Avatar id="avatar"></Avatar>
-          <button class="secondary" onclick="auth.logout()">Sair</button>
+          <button class="secondary" onclick="auth.logout()">
+            Sair
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="22"
+              height="22"
+              fill="currentColor"
+              viewBox="0 0 256 256"
+            >
+              <path
+                d="M120,216a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V40a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H56V208h56A8,8,0,0,1,120,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L204.69,120H112a8,8,0,0,0,0,16h92.69l-26.35,26.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,229.66,122.34Z"
+              ></path>
+            </svg>
+          </button>
         </div>
       </div>
       <div id="welcome">
@@ -34,14 +49,12 @@
       </div>
     </header>
     <dialog id="loginModal">
-      <form
-        class="flex-col-center-start gap"
-        method="dialog"
-        onsubmit="auth.login(event)"
-      >
-        <div class="flex-col-center-start gap">
-          <div>
-            <label for="user">Usuário:</label>
+      <div class="dialog-content">
+        <div class="logo">
+          <img src="/public/logo.svg" alt="" srcset="" />
+        </div>
+        <form method="dialog" onsubmit="auth.login(event)">
+          <fieldset>
             <input
               type="text"
               id="user"
@@ -49,9 +62,9 @@
               placeholder="Usuário"
               required
             />
-          </div>
-          <div>
-            <label for="password">Senha:</label>
+            <label for="user">Usuário:</label>
+          </fieldset>
+          <fieldset>
             <input
               type="password"
               placeholder="Senha"
@@ -59,25 +72,114 @@
               name="password"
               required
             />
-          </div>
-          <div>
+            <label for="password">Senha:</label>
+          </fieldset>
+          <div class="enter">
             <button type="submit">Entrar</button>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </dialog>
     <main>
       <section>
-        <button>Reservar quadra</button>
+        <button onclick="calendar.openScheduleModal()">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="22"
+            height="22"
+            fill="currentColor"
+            viewBox="0 0 256 256"
+          >
+            <path
+              d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-48-56a8,8,0,0,1-8,8H136v16a8,8,0,0,1-16,0V160H104a8,8,0,0,1,0-16h16V128a8,8,0,0,1,16,0v16h16A8,8,0,0,1,160,152Z"
+            ></path>
+          </svg>
+          Reservar quadra
+        </button>
       </section>
       <section class="calendarArea container">
-        <button id="previous" onclick="calendar.changeMonth('previous')">
-          <
-        </button>
+        <div class="--head">
+          <div id="currentMonth"></div>
+          <div class="buttonGroup">
+            <button id="previous" onclick="calendar.changeMonth('previous')">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
+                fill="currentColor"
+                viewBox="0 0 256 256"
+              >
+                <path
+                  d="M168.49,199.51a12,12,0,0,1-17,17l-80-80a12,12,0,0,1,0-17l80-80a12,12,0,0,1,17,17L97,128Z"
+                ></path>
+              </svg>
+              Anterior
+            </button>
+            <button id="next" onclick="calendar.changeMonth('next')">
+              Próximo
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
+                fill="currentColor"
+                viewBox="0 0 256 256"
+              >
+                <path
+                  d="M184.49,136.49l-80,80a12,12,0,0,1-17-17L159,128,87.51,56.49a12,12,0,1,1,17-17l80,80A12,12,0,0,1,184.49,136.49Z"
+                ></path>
+              </svg>
+            </button>
+          </div>
+        </div>
         <div id="calendar"></div>
-        <button id="next" onclick="calendar.changeMonth('next')">></button>
       </section>
     </main>
+    <dialog id="scheduleModal">
+      <div class="dialog-content">
+        <h3>Reservar quadra</h3>
+        <form method="dialog" onsubmit="calendar.onSchedule(event)">
+          <fieldset>
+            <input
+              type="date"
+              id="inputDate"
+              name="inputDate"
+              placeholder="Data"
+              min="new Date().toISOString().split('T')[0]"
+              required
+            />
+            <label for="user">Data:</label>
+          </fieldset>
+          <fieldset>
+            <input
+              type="time"
+              placeholder="Hora"
+              id="inputTime"
+              name="inputTime"
+              required
+              step="3600"
+            />
+            <label for="password">Hora de início*:</label>
+          </fieldset>
+          <label> *As reservas tem duração de 1 hora. </label>
+          <fieldset>
+            <input
+              type="number"
+              placeholder="Quantidade de jogadores"
+              id="inputPlayers"
+              name="inputPlayers"
+              required
+              min="1"
+              max="10"
+            />
+            <label for="players">Quantidade de jogadores:</label>
+          </fieldset>
+          <div class="enter buttonGroup">
+            <button class="secondary">Cancelar</button>
+            <button type="submit">Reservar</button>
+          </div>
+        </form>
+      </div>
+    </dialog>
   </body>
   <script src="./src/app.js"></script>
 </html>

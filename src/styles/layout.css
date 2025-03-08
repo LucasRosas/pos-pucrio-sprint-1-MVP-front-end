@@ -101,13 +101,53 @@ div[class|="flex"] {
 }
 
 .container {
-  padding: 1rem;
+  padding: 1rem 1.5rem;
   border-radius: 20px;
   background-color: #333;
   color: white;
+  /* box-shadow: 0px 2px 1px 2px rgba(255, 255, 255, 0.1); */
+  border: 0.1px solid var(--gray-700-75);
+  border-top: 0.1px solid var(--gray-600-75);
 }
 
 main {
   margin-inline: 8vw;
-  margin-block: 3rem;
+  margin-block: 5rem;
+}
+
+fieldset {
+  border: none;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.5rem;
+  border-radius: 10px;
+  padding: 0;
+}
+input {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+
+  letter-spacing: 0.5px;
+  background-color: var(--white);
+  color: var(--gray-1000);
+  height: 2.5rem;
+}
+
+input::placeholder {
+  color: var(--gray-700);
+}
+
+label {
+  font-size: 0.875rem;
+  color: var(--gray-600);
+  user-select: none;
+  transition: all 0.3s ease;
+}
+
+input:placeholder-shown + label {
+  opacity: 0;
+  transform: translateY(1rem);
+  color: var(--gray-700);
 }
