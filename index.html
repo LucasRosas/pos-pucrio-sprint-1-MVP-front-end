@@ -16,30 +16,68 @@
       </div>
     </noscript>
     <header>
-      <div>Logo</div>
-      <div class="flex-center-center gap">
-        <div id="userName">Lucas</div>
-        <Avatar id="avatar"></Avatar>
-        <button onclick="logout()">Sair</button>
+      <div class="topBar">
+        <div>Logo</div>
+        <div class="flex-center-center gap">
+          <div class="userName userNameDisplay">Lucas</div>
+          <Avatar id="avatar"></Avatar>
+          <button class="secondary" onclick="auth.logout()">Sair</button>
+        </div>
+      </div>
+      <div id="welcome">
+        <h1>Olá, <span class="userName">Lucas</span>!</h1>
+        <p>
+          Você está logado como
+          <strong><span class="userRole">Aluno</span></strong
+          >.
+        </p>
       </div>
     </header>
     <dialog id="loginModal">
-      <form method="dialog" onsubmit="login(event)">
-        <section>
+      <form
+        class="flex-col-center-start gap"
+        method="dialog"
+        onsubmit="auth.login(event)"
+      >
+        <div class="flex-col-center-start gap">
           <div>
             <label for="user">Usuário:</label>
-            <input type="text" id="user" name="user" required />
+            <input
+              type="text"
+              id="user"
+              name="user"
+              placeholder="Usuário"
+              required
+            />
           </div>
           <div>
             <label for="password">Senha:</label>
-            <input type="password" id="password" name="password" required />
+            <input
+              type="password"
+              placeholder="Senha"
+              id="password"
+              name="password"
+              required
+            />
           </div>
-        </section>
-        <menu>
-          <button type="submit">Entrar</button>
-        </menu>
+          <div>
+            <button type="submit">Entrar</button>
+          </div>
+        </div>
       </form>
     </dialog>
+    <main>
+      <section>
+        <button>Reservar quadra</button>
+      </section>
+      <section class="calendarArea container">
+        <button id="previous" onclick="calendar.changeMonth('previous')">
+          <
+        </button>
+        <div id="calendar"></div>
+        <button id="next" onclick="calendar.changeMonth('next')">></button>
+      </section>
+    </main>
   </body>
-  <script src="src/app.js"></script>
+  <script src="./src/app.js"></script>
 </html>

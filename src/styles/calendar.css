@@ -1,0 +1,42 @@
+.calendarArea {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+  justify-content: center;
+  margin-block: 2rem;
+}
+
+#calendar {
+  width: 80vw;
+}
+
+#calendar > table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#calendar > table > thead > tr > th {
+  padding: 1rem;
+}
+
+#calendar > table > tbody > tr > td {
+  height: 75px;
+}
+#calendar .day {
+  margin: 5px;
+  padding: 0.5rem;
+  height: 75px;
+  background-color: #555;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+#calendar .day.today {
+  background-color: #666;
+  font-weight: bold;
+}
+
+#calendar .day:hover {
+  background-color: #777;
+  color: white;
+}

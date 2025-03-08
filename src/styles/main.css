@@ -2,35 +2,37 @@
 
 @import url(button.css);
 @import url(layout.css);
+@import url(calendar.css);
+@import url(header.css);
+@import url(typografy.css);
 
 body,
 html {
   margin: 0;
   padding: 0;
   font-family: Inter, sans-serif;
+  background-color: var(--gray-1000);
+}
+
+:root {
+  --gray-1000: #000000;
+  --gray-900: #121212;
+  --gray-800: #1c1d1c;
+  --gray-700: #3e403e;
+  --gray-600: #8d908d;
+  --white: #ffffff;
+  --gray-1000-75: #00000075;
+  --gray-900-75: #12121275;
+  --gray-800-75: #1c1d1c75;
+  --gray-700-75: #3e403e75;
+  --gray-600-75: #8d908d75;
+  --white-75: #ffffff75;
+
+  --primary-color: #97c105;
+  --secondary-color: #8d908d;
 }
 
 * {
   box-sizing: border-box;
   font-family: Inter, sans-serif;
-}
-
-Avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-color: aqua;
-}
-
-header {
-  background-color: #333;
-  color: white;
-  padding: 10px;
-  text-align: center;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }

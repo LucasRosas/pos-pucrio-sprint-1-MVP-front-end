@@ -92,10 +92,22 @@ div[class*="-space-evenly-end"] {
   align-items: flex-end;
 }
 
+div[class|="flex-col"] {
+  flex-direction: column;
+}
+
 div[class|="flex"] {
   display: flex;
 }
 
-div[class|="flex-col"] > * {
-  flex-direction: column;
+.container {
+  padding: 1rem;
+  border-radius: 20px;
+  background-color: #333;
+  color: white;
+}
+
+main {
+  margin-inline: 8vw;
+  margin-block: 3rem;
 }
