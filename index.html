@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="src/styles/main.css" />
     <link rel="icon" type="image/png" href="public/favicon.png" />
-    <title>Reserver</title>
+    <title>Reserver - MVP</title>
   </head>
   <body>
     <noscript>
@@ -174,8 +174,14 @@
             <label for="players">Quantidade de jogadores:</label>
           </fieldset>
           <div class="enter buttonGroup">
-            <button class="secondary">Cancelar</button>
-            <button type="submit">Reservar</button>
+            <button
+              type="button"
+              onclick="calendar.closeScheduleModal()"
+              class="secondary"
+            >
+              Cancelar
+            </button>
+            <button id="saveSchedule" type="submit">Reservar</button>
           </div>
         </form>
       </div>

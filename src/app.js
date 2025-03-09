@@ -5,7 +5,6 @@ const zeroPad = (num, places) => String(num).padStart(places, "0");
 
 class Auth {
   constructor() {
-    this.schedules = [];
     this.token = localStorage.getItem("token");
     this.loginModal = document.getElementById("loginModal");
     if (!this.token) {
@@ -39,7 +38,9 @@ class Auth {
 }
 
 class Calendar {
-  constructor() {
+  constructor(auth) {
+    this.auth = auth;
+    this.schedules = [];
     this.calendarElement = document.getElementById("calendar");
     this.calendarData = [];
     this.month = new Date().getMonth();
@@ -118,14 +119,20 @@ class Calendar {
             new Date(this.year, this.month, day).toISOString()
           );
           td.addEventListener("click", (event) => {
-            this.openScheduleModal(event);
+            this.openScheduleModal(event, td);
           });
+
           if (
             day === new Date().getDate() &&
             this.month === new Date().getMonth() &&
             this.year === new Date().getFullYear()
           ) {
             td.innerHTML = `<div class='day today'>${day}</div>`;
+          } else if (
+            new Date(this.year, this.month, day).valueOf() <
+            new Date().valueOf()
+          ) {
+            td.innerHTML = `<div class='day inPast'>${day}</div>`;
           } else {
             td.innerHTML = `<div class='day'>${day}</div>`;
           }
@@ -145,22 +152,28 @@ class Calendar {
     currentMonthElement.innerHTML = `<h2>${thisMonth} de ${thisYear}</h2>`;
     this.calendarElement.innerHTML = "";
     this.calendarElement.appendChild(table);
-    this.plotSchedules();
+    this.getSchedules();
   };
 
   getSchedules = () => {
     this.schedules = [
       {
         date: new Date().toISOString(),
+        time: "15:00",
         mine: true,
-        title: "Reunião com a equipe",
-        description: "Reunião para discutir o planejamento do próximo sprint",
+        players: 2,
       },
       {
         date: new Date(2025, 2, 10, 15, 0).toISOString(),
+        time: "17:00",
         mine: false,
-        title: "Reunião com a equipe",
-        description: "Reunião para discutir o planejamento do próximo sprint",
+        players: 2,
+      },
+      {
+        date: new Date(2025, 2, 6, 15, 0).toISOString(),
+        time: "17:00",
+        mine: true,
+        players: 2,
       },
     ];
 
@@ -170,29 +183,45 @@ class Calendar {
   clearSchedules = () => {
     let schedules = document.querySelectorAll(".schedule");
     schedules.forEach((schedule) => {
-      schedule.innerHTML = "";
+      schedule.remove();
     });
   };
 
   plotSchedules = () => {
     this.clearSchedules();
     this.schedules.forEach((schedule) => {
-      let year = new Date(schedule.date).getFullYear();
-      let month = new Date(schedule.date).getMonth();
-      let day = new Date(schedule.date).getDate();
-      let hour = new Date(schedule.date).getHours();
-      let min = zeroPad(new Date(schedule.date).getMinutes(), 2);
+      let schedule_year = new Date(schedule.date).getFullYear();
+      let schedule_month = new Date(schedule.date).getMonth();
+      let schedule_day = new Date(schedule.date).getDate();
+      let hour = +schedule.time.split(":")[0];
+      let min = zeroPad(schedule.time.split(":")[1], 2);
       let dayElement = document.querySelector(
-        `[data-day='${new Date(year, month, day).toISOString()}']`
+        `[data-day='${new Date(
+          schedule_year,
+          schedule_month,
+          schedule_day
+        ).toISOString()}']`
       );
-      console.log("dia encontrado", dayElement);
       if (dayElement) {
         let childElement = dayElement.querySelector(".day");
-        let scheduleElement = document.createElement("div");
+        const scheduleElement = document.createElement("div");
         scheduleElement.classList.add("schedule");
         if (!schedule.mine) {
           scheduleElement.classList.add("schedule-other");
           scheduleElement.innerHTML = `<div class='icon prohibit'></div>${hour}h${min} - ${
+            hour + 1
+          }h${min}`;
+        } else if (
+          new Date(
+            schedule_year,
+            schedule_month,
+            schedule_day,
+            hour,
+            min
+          ).valueOf() < new Date().valueOf()
+        ) {
+          scheduleElement.classList.add("inPast");
+          scheduleElement.innerHTML = `<div class='icon ball'></div>${hour}h${min} - ${
             hour + 1
           }h${min}`;
         } else {
@@ -200,20 +229,33 @@ class Calendar {
             hour + 1
           }h${min}`;
         }
+
+        scheduleElement.addEventListener("click", () => {
+          this.openModalToeditSchedule(schedule);
+        });
         childElement.appendChild(scheduleElement);
       }
     });
   };
 
-  openScheduleModal = (event) => {
+  openScheduleModal = (event, element) => {
+    if (event && event.target.classList.contains("schedule")) return;
+    if (element && element.childNodes[0].classList.contains("inPast")) return;
     document.getElementById("scheduleModal").showModal();
-    if (event.target.classList.contains("day")) {
+    document.getElementById("saveSchedule").innerText = "Reservar";
+    document.querySelector(".dialog-content>h3").innerText = "Reservar quadra";
+    let inputDate = document.getElementById("inputDate");
+    inputDate.min = new Date().toISOString().split("T")[0];
+    let inputTime = document.getElementById("inputTime");
+    if (event && event.target.classList.contains("day")) {
       let date = new Date(event.target.parentElement.getAttribute("data-day"));
-      let inputDate = document.getElementById("inputDate");
       inputDate.value = new Date(date).toISOString().split("T")[0];
-      let inputTime = document.getElementById("inputTime");
       inputTime.focus();
     }
+  };
+
+  closeScheduleModal = (event) => {
+    document.getElementById("scheduleModal").close();
   };
 
   onSchedule = (event) => {
@@ -222,11 +264,30 @@ class Calendar {
     let players = document.getElementById("inputPlayers").value;
     this.schedules.push({
       date: new Date(`${date}T${time}`).toISOString(),
+      time: time,
       mine: true,
+      players: players,
+      user: this.auth.token,
     });
-    console.log(date, time, players, event);
     this.plotSchedules();
   };
+
+  openModalToeditSchedule(schedule) {
+    if (!schedule.mine) return;
+    document.getElementById("scheduleModal").showModal();
+    let inputDate = document.getElementById("inputDate");
+    inputDate.value = new Date(schedule.date)
+      .toLocaleDateString("pt-BR")
+      .split("/")
+      .reverse()
+      .join("-");
+    let inputTime = document.getElementById("inputTime");
+    inputTime.value = schedule.time;
+    let inputPlayers = document.getElementById("inputPlayers");
+    inputPlayers.value = schedule.players;
+    document.getElementById("saveSchedule").innerText = "Salvar";
+    document.querySelector(".dialog-content>h3").innerText = "Editar reserva";
+  }
 }
 
 let calendar = null;
@@ -235,8 +296,7 @@ let auth = null;
 const mounted = () => {
   window.onload = () => {
     auth = new Auth();
-    calendar = new Calendar();
-    console.log(calendar);
+    calendar = new Calendar(auth);
   };
 };
 
