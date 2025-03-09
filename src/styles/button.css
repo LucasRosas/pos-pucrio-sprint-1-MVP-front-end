@@ -13,9 +13,10 @@ button {
   justify-content: center;
   align-items: center;
   gap: 0.75rem;
-  flex: auto;
   height: fit-content;
   min-height: 2.75rem;
+  width: fit-content;
+  word-wrap: unset;
 }
 
 button.secondary {
@@ -27,4 +28,14 @@ button.secondary {
   display: flex;
   gap: 1rem;
   justify-content: center;
+}
+
+button.small {
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  min-height: 2rem;
+}
+
+button.stretch {
+  flex: auto;
 }

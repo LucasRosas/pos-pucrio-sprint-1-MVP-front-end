@@ -60,6 +60,7 @@
               id="user"
               name="user"
               placeholder="Usuário"
+              autocomplete="username"
               required
             />
             <label for="user">Usuário:</label>
@@ -70,18 +71,19 @@
               placeholder="Senha"
               id="password"
               name="password"
+              autocomplete="current-password"
               required
             />
             <label for="password">Senha:</label>
           </fieldset>
           <div class="enter">
-            <button type="submit">Entrar</button>
+            <button class="stretch" type="submit">Entrar</button>
           </div>
         </form>
       </div>
     </dialog>
     <main>
-      <section>
+      <section class="actions-rigth">
         <button onclick="calendar.openScheduleModal()">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -177,15 +179,18 @@
             <button
               type="button"
               onclick="calendar.closeScheduleModal()"
-              class="secondary"
+              class="secondary stretch"
             >
               Cancelar
             </button>
-            <button id="saveSchedule" type="submit">Reservar</button>
+            <button class="stretch" id="saveSchedule" type="submit">
+              Reservar
+            </button>
           </div>
         </form>
       </div>
     </dialog>
+    <div class="tooltip" id="tooltip"></div>
   </body>
   <script src="./src/app.js"></script>
 </html>

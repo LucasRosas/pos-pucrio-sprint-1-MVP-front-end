@@ -151,3 +151,8 @@ input:placeholder-shown + label {
   transform: translateY(1rem);
   color: var(--gray-700);
 }
+
+.actions-rigth {
+  display: flex;
+  justify-content: flex-end;
+}

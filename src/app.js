@@ -3,6 +3,28 @@ document.getElementById("avatar").style.backgroundImage =
 
 const zeroPad = (num, places) => String(num).padStart(places, "0");
 
+const setTooltip = () => {
+  const tooltip = document.getElementById("tooltip");
+  const items = document.querySelectorAll(".schedule");
+
+  items.forEach((item) => {
+    item.addEventListener("mouseenter", (e) => {
+      const text = item.getAttribute("data-tooltip");
+      tooltip.textContent = text;
+      tooltip.style.opacity = "1";
+
+      const rect = item.getBoundingClientRect();
+      tooltip.style.position = "fixed";
+      tooltip.style.top = `${rect.top - 40}px`;
+      tooltip.style.left = `calc(${rect.left}px + ${rect.width / 2}px)`;
+    });
+
+    item.addEventListener("mouseleave", () => {
+      tooltip.style.opacity = "0";
+    });
+  });
+};
+
 class Auth {
   constructor() {
     this.token = localStorage.getItem("token");
@@ -97,6 +119,22 @@ class Calendar {
     this.buildCalendarTable();
   };
 
+  buildDayContainer = (day, classes) => {
+    const div = document.createElement("div");
+    div.classList.add("day");
+    classes.forEach((className) => {
+      div.classList.add(className);
+    });
+    div.innerHTML = `
+    <div class="day-head"> 
+    <div>${day}</div>
+    <button class="btn small">Reservar</button>
+    </div>
+    <div class="schedule-list"></div>
+    `;
+    return div;
+  };
+
   buildCalendarTable = () => {
     const table = document.createElement("table");
     const thead = document.createElement("thead");
@@ -118,24 +156,25 @@ class Calendar {
             "data-day",
             new Date(this.year, this.month, day).toISOString()
           );
-          td.addEventListener("click", (event) => {
-            this.openScheduleModal(event, td);
-          });
 
           if (
             day === new Date().getDate() &&
             this.month === new Date().getMonth() &&
             this.year === new Date().getFullYear()
           ) {
-            td.innerHTML = `<div class='day today'>${day}</div>`;
+            td.appendChild(this.buildDayContainer(day, ["today"]));
           } else if (
             new Date(this.year, this.month, day).valueOf() <
             new Date().valueOf()
           ) {
-            td.innerHTML = `<div class='day inPast'>${day}</div>`;
+            td.appendChild(this.buildDayContainer(day, ["inPast"]));
           } else {
-            td.innerHTML = `<div class='day'>${day}</div>`;
+            td.appendChild(this.buildDayContainer(day, []));
           }
+          let button = td.querySelector("button");
+          button.addEventListener("click", (event) => {
+            this.openScheduleModal(event, td);
+          });
         }
         row.appendChild(td);
       });
@@ -160,30 +199,36 @@ class Calendar {
       {
         date: new Date().toISOString(),
         time: "15:00",
-        mine: true,
+        mine: false,
         players: 2,
       },
       {
         date: new Date(2025, 2, 10, 15, 0).toISOString(),
         time: "17:00",
-        mine: false,
+        mine: true,
         players: 2,
       },
       {
-        date: new Date(2025, 2, 6, 15, 0).toISOString(),
+        date: new Date(2025, 2, 13, 15, 0).toISOString(),
         time: "17:00",
         mine: true,
         players: 2,
       },
-    ];
-
+    ].sort((a, b) => {
+      let [aHour, aMin] = a.time.split(":");
+      let [bHour, bMin] = b.time.split(":");
+      return (
+        new Date(a.date).setHours(aHour, aMin) -
+        new Date(b.date).setHours(bHour, bMin)
+      );
+    });
     this.plotSchedules();
   };
 
   clearSchedules = () => {
-    let schedules = document.querySelectorAll(".schedule");
-    schedules.forEach((schedule) => {
-      schedule.remove();
+    let scheduleList = document.querySelectorAll(".schedule-list");
+    scheduleList.forEach((schedule) => {
+      schedule.innerHTML = "";
     });
   };
 
@@ -203,8 +248,8 @@ class Calendar {
         ).toISOString()}']`
       );
       if (dayElement) {
-        let childElement = dayElement.querySelector(".day");
         const scheduleElement = document.createElement("div");
+        scheduleElement.setAttribute("data-tooltip", "Editar");
         scheduleElement.classList.add("schedule");
         if (!schedule.mine) {
           scheduleElement.classList.add("schedule-other");
@@ -233,9 +278,12 @@ class Calendar {
         scheduleElement.addEventListener("click", () => {
           this.openModalToeditSchedule(schedule);
         });
-        childElement.appendChild(scheduleElement);
+
+        let scheduleList = dayElement.querySelector(".schedule-list");
+        scheduleList.appendChild(scheduleElement);
       }
     });
+    setTooltip();
   };
 
   openScheduleModal = (event, element) => {
@@ -247,8 +295,8 @@ class Calendar {
     let inputDate = document.getElementById("inputDate");
     inputDate.min = new Date().toISOString().split("T")[0];
     let inputTime = document.getElementById("inputTime");
-    if (event && event.target.classList.contains("day")) {
-      let date = new Date(event.target.parentElement.getAttribute("data-day"));
+    if (element && element.getAttribute("data-day")) {
+      let date = new Date(element.getAttribute("data-day"));
       inputDate.value = new Date(date).toISOString().split("T")[0];
       inputTime.focus();
     }
