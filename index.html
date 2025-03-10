@@ -21,7 +21,7 @@
           <img src="/public/logo.svg" alt="" srcset="" />
         </div>
         <div class="flex-center-center gap">
-          <div class="userName userNameDisplay">Lucas Rosas</div>
+          <div class="userName userNameDisplay"></div>
           <Avatar id="avatar"></Avatar>
           <button class="secondary" onclick="auth.logout()">
             Sair
@@ -40,10 +40,10 @@
         </div>
       </div>
       <div id="welcome">
-        <h1>Olá, <span class="userName">Lucas</span>!</h1>
+        <h1>Olá, <span class="userName"></span>!</h1>
         <p>
           Você está logado como
-          <strong><span class="userRole">Aluno</span></strong
+          <strong><span id="userRole">Aluno</span></strong
           >.
         </p>
       </div>
@@ -76,6 +76,9 @@
             />
             <label for="password">Senha:</label>
           </fieldset>
+          <div id="errorLogin" class="error" hidden>
+            <p>Usuário ou senha inválidos.</p>
+          </div>
           <div class="enter">
             <button class="stretch" type="submit">Entrar</button>
           </div>
@@ -162,7 +165,7 @@
             />
             <label for="password">Hora de início*:</label>
           </fieldset>
-          <label> *As reservas tem duração de 1 hora. </label>
+          <label> *As reservas têm duração de 1 hora. </label>
           <fieldset>
             <input
               type="number"
@@ -175,6 +178,11 @@
             />
             <label for="players">Quantidade de jogadores:</label>
           </fieldset>
+          <div id="errorSchedule" class="error" hidden>
+            <p>
+              Já existe uma reserva para esse horário. Escolha outro, por favor.
+            </p>
+          </div>
           <div class="enter buttonGroup">
             <button
               type="button"

@@ -15,7 +15,7 @@ dialog.loginModal {
 
 #scheduleModal {
   width: 500px;
-  height: 50vh;
+  height: 60vh;
 }
 
 dialog::backdrop {

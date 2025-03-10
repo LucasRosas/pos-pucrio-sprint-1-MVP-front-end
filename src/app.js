@@ -28,13 +28,26 @@ const setTooltip = () => {
 class Auth {
   constructor() {
     this.token = localStorage.getItem("token");
+    this.userName = localStorage.getItem("userName");
+    this.avatar = localStorage.getItem("avatar");
+    this.role = localStorage.getItem("role");
     this.loginModal = document.getElementById("loginModal");
     if (!this.token) {
       this.openLoginModal();
+    } else {
+      this.updateUserInfo();
     }
   }
   logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("avatar");
+    localStorage.removeItem("role");
+    this.token = null;
+    this.userName = "";
+    this.avatar = "";
+    this.role = "";
+    this.updateUserInfo();
     this.openLoginModal();
   };
 
@@ -46,16 +59,61 @@ class Auth {
     this.loginModal.close();
   };
 
-  login = (event) => {
+  login = async (event) => {
     event.preventDefault();
+    document.getElementById("errorLogin").setAttribute("hidden", true);
+
     const email = document.getElementById("user").value;
     const password = document.getElementById("password").value;
-    if (email === "admin" && password === "admin") {
-      localStorage.setItem("token", "123456");
+
+    const myHeaders = new Headers();
+    myHeaders.append("accept", "application/json");
+
+    const formdata = new FormData();
+    formdata.append("email", email);
+    formdata.append("password", password);
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: formdata,
+      redirect: "follow",
+    };
+
+    try {
+      const result = await fetch("http://localhost:5000/login", requestOptions);
+      if (result.status != 200) {
+        throw new Error("Invalid credentials");
+      }
+
+      const data = await result.json();
+
+      localStorage.setItem("token", data.id);
+      localStorage.setItem("userName", data.name);
+      localStorage.setItem("avatar", data.avatar);
+      localStorage.setItem("role", data.role);
+      this.userName = data.name;
+      this.avatar = data.avatar;
+      this.role = data.role;
+      this.updateUserInfo();
       this.closeLoginModal();
-    } else {
-      alert("Invalid credentials");
+      window.location.reload();
+    } catch (error) {
+      console.error("Error:", error);
+      document.getElementById("errorLogin").removeAttribute("hidden");
     }
+  };
+
+  updateUserInfo = () => {
+    document.getElementById(
+      "avatar"
+    ).style.backgroundImage = `url('${this.avatar}')`;
+
+    const userNameFields = document.querySelectorAll(".userName");
+    userNameFields.forEach((field) => {
+      field.innerText = this.userName;
+    });
+    document.getElementById("userRole").innerText = this.role;
   };
 }
 
@@ -67,6 +125,8 @@ class Calendar {
     this.calendarData = [];
     this.month = new Date().getMonth();
     this.year = new Date().getFullYear();
+    this.editMode = false;
+    this.scheduleToEdit = null;
     this.buildCalendarData(this.month, this.year);
   }
 
@@ -194,35 +254,47 @@ class Calendar {
     this.getSchedules();
   };
 
-  getSchedules = () => {
-    this.schedules = [
-      {
-        date: new Date().toISOString(),
-        time: "15:00",
-        mine: false,
-        players: 2,
-      },
-      {
-        date: new Date(2025, 2, 10, 15, 0).toISOString(),
-        time: "17:00",
-        mine: true,
-        players: 2,
-      },
-      {
-        date: new Date(2025, 2, 13, 15, 0).toISOString(),
-        time: "17:00",
-        mine: true,
-        players: 2,
-      },
-    ].sort((a, b) => {
-      let [aHour, aMin] = a.time.split(":");
-      let [bHour, bMin] = b.time.split(":");
-      return (
-        new Date(a.date).setHours(aHour, aMin) -
-        new Date(b.date).setHours(bHour, bMin)
+  getSchedules = async () => {
+    let token = localStorage.getItem("token");
+    if (!token) return;
+    const requestOptions = {
+      method: "GET",
+      redirect: "follow",
+    };
+
+    try {
+      const result = await fetch(
+        `http://localhost:5000/schedules?month=${this.month + 1}&year=${
+          this.year
+        }&token=${token}`,
+        requestOptions
       );
-    });
-    this.plotSchedules();
+
+      const data = await result.json();
+      this.schedules = data.schedules
+        .map((item) => {
+          return {
+            ...item,
+            time: new Date(item.datetime).toLocaleTimeString("pt-BR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+          };
+        })
+        .sort((a, b) => {
+          let [aHour, aMin] = a.time.split(":");
+          let [bHour, bMin] = b.time.split(":");
+          return (
+            new Date(a.date).setHours(aHour, aMin) -
+            new Date(b.date).setHours(bHour, bMin)
+          );
+        });
+      this.plotSchedules();
+      console.log(this.schedules);
+    } catch (error) {
+      console.error("Error:", error);
+      document.getElementById("errorLogin").removeAttribute("hidden");
+    }
   };
 
   clearSchedules = () => {
@@ -235,9 +307,9 @@ class Calendar {
   plotSchedules = () => {
     this.clearSchedules();
     this.schedules.forEach((schedule) => {
-      let schedule_year = new Date(schedule.date).getFullYear();
-      let schedule_month = new Date(schedule.date).getMonth();
-      let schedule_day = new Date(schedule.date).getDate();
+      let schedule_year = new Date(schedule.datetime).getFullYear();
+      let schedule_month = new Date(schedule.datetime).getMonth();
+      let schedule_day = new Date(schedule.datetime).getDate();
       let hour = +schedule.time.split(":")[0];
       let min = zeroPad(schedule.time.split(":")[1], 2);
       let dayElement = document.querySelector(
@@ -251,7 +323,7 @@ class Calendar {
         const scheduleElement = document.createElement("div");
         scheduleElement.setAttribute("data-tooltip", "Editar");
         scheduleElement.classList.add("schedule");
-        if (!schedule.mine) {
+        if (!schedule.isMine) {
           scheduleElement.classList.add("schedule-other");
           scheduleElement.innerHTML = `<div class='icon prohibit'></div>${hour}h${min} - ${
             hour + 1
@@ -303,28 +375,66 @@ class Calendar {
   };
 
   closeScheduleModal = (event) => {
+    document.getElementById("errorSchedule").setAttribute("hidden", true);
     document.getElementById("scheduleModal").close();
+    this.editMode = false;
+    this.scheduleToEdit = null;
   };
 
-  onSchedule = (event) => {
+  onSchedule = async (event) => {
+    event.preventDefault();
+    document.getElementById("errorSchedule").setAttribute("hidden", true);
+    let token = localStorage.getItem("token");
+    if (!token) return;
     let date = document.getElementById("inputDate").value;
     let time = document.getElementById("inputTime").value;
+    let datetime = new Date(`${date}T${time}`).toISOString();
     let players = document.getElementById("inputPlayers").value;
-    this.schedules.push({
-      date: new Date(`${date}T${time}`).toISOString(),
-      time: time,
-      mine: true,
-      players: players,
-      user: this.auth.token,
-    });
-    this.plotSchedules();
+
+    const myHeaders = new Headers();
+    myHeaders.append("accept", "application/json");
+
+    const formdata = new FormData();
+    formdata.append("datetime", datetime);
+    formdata.append("players", players);
+    formdata.append("token", token);
+    if (this.editMode) {
+      formdata.append("id", this.scheduleToEdit.id);
+    }
+
+    const requestOptions = {
+      method: this.editMode ? "PATCH" : "POST",
+      headers: myHeaders,
+      body: formdata,
+      redirect: "follow",
+    };
+
+    try {
+      const result = await fetch(
+        "http://localhost:5000/schedule",
+        requestOptions
+      );
+      console.log(result);
+      if (result.status != 200) {
+        throw new Error("Invalid credentials");
+      }
+      console.log("chegou aqui");
+
+      this.getSchedules();
+      this.closeScheduleModal();
+    } catch (error) {
+      console.error("Error:", error);
+      document.getElementById("errorSchedule").removeAttribute("hidden");
+    }
   };
 
   openModalToeditSchedule(schedule) {
-    if (!schedule.mine) return;
+    if (!schedule.isMine) return;
+    this.scheduleToEdit = schedule;
+    this.editMode = true;
     document.getElementById("scheduleModal").showModal();
     let inputDate = document.getElementById("inputDate");
-    inputDate.value = new Date(schedule.date)
+    inputDate.value = new Date(schedule.datetime)
       .toLocaleDateString("pt-BR")
       .split("/")
       .reverse()
