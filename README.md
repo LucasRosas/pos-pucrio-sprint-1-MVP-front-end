@@ -1,4 +1,4 @@
-# RESERVER
+# RESERVER - FRONT-END
 
 > Front-end do MVP para a disciplina **Desenvolvimento Full Stack Básico** da Pós-Graduação em Engenharia de Software – PUC-Rio.
 
@@ -41,12 +41,16 @@ Para rodar o projeto localmente, siga os passos abaixo:
 3. **Abra no navegador**  
    Localize o arquivo `index.html` e abra-o no navegador de sua preferência.
 
-## 🔑 Acesso
+## 🔑 Usuários de Teste
 
-Para testar o sistema, utilize as seguintes credenciais:
+O sistema já vem com dois usuários cadastrados para fins de teste:
 
-- **Usuário:** `luanasilva`  
-  **Senha:** `654321`
+```sh
+Usuário: luanasilva
+Senha: 654321
+```
 
-- **Usuário:** `joseferreira`  
-  **Senha:** `123456`
+```sh
+Usuário: joseferreira
+Senha: 123456
+```
