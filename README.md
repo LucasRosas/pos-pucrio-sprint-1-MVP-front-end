@@ -41,6 +41,13 @@ Para rodar o projeto localmente, siga os passos abaixo:
 3. **Abra no navegador**  
    Localize o arquivo `index.html` e abra-o no navegador de sua preferência.
 
+4. **Inicie o servidor do back-end**  
+   Para que todas as funcionalidades do sistema funcionem corretamente, é necessário que o back-end esteja rodando.
+
+   Siga as instruções do repositório abaixo para iniciar a API:
+
+   🔗 [Reserver - Back-end](https://github.com/LucasRosas/pos-pucrio-sprint-1-MVP-back-end)
+
 ## 🔑 Usuários de Teste
 
 O sistema já vem com dois usuários cadastrados para fins de teste:
