@@ -1,8 +1,10 @@
-document.getElementById("avatar").style.backgroundImage =
-  "url('https://images.unsplash.com/photo-1728577740843-5f29c7586afe?q=80&w=1480&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')";
+// URL base da API do Reserver
+const API_BASE_URL = "http://localhost:5000";
 
+// Função para adicionar zero à esquerda de um número
 const zeroPad = (num, places) => String(num).padStart(places, "0");
 
+// Função para configurar tooltip
 const setTooltip = () => {
   const tooltip = document.getElementById("tooltip");
   const items = document.querySelectorAll(".schedule");
@@ -25,6 +27,10 @@ const setTooltip = () => {
   });
 };
 
+/**
+ * @description Classe para autenticação do usuário. Responsável por fazer login, logout e atualizar informações do usuário
+ * @class Auth
+ */
 class Auth {
   constructor() {
     this.token = localStorage.getItem("token");
@@ -38,6 +44,12 @@ class Auth {
       this.updateUserInfo();
     }
   }
+
+  /**
+   * @description Função para fazer logout do usuário
+   * @returns {void}
+   * @memberof Auth
+   */
   logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userName");
@@ -51,14 +63,27 @@ class Auth {
     this.openLoginModal();
   };
 
+  /**
+   * @description Função para abrir o modal de login
+   * @returns {void}
+   */
   openLoginModal = () => {
     this.loginModal.showModal();
   };
 
+  /**
+   * @description Função para fechar o modal de login
+   * @returns {void}
+   */
   closeLoginModal = () => {
     this.loginModal.close();
   };
 
+  /**
+   * @description Função para fazer login do usuário
+   * @param {Event} event Evento de clique no botão de Entrar
+   * @returns {void}
+   */
   login = async (event) => {
     event.preventDefault();
     document.getElementById("errorLogin").setAttribute("hidden", true);
@@ -81,9 +106,9 @@ class Auth {
     };
 
     try {
-      const result = await fetch("http://localhost:5000/login", requestOptions);
+      const result = await fetch(`${API_BASE_URL}/login`, requestOptions);
       if (result.status != 200) {
-        throw new Error("Invalid credentials");
+        throw new Error("Credenciais inválidas");
       }
 
       const data = await result.json();
@@ -104,6 +129,10 @@ class Auth {
     }
   };
 
+  /**
+   * @description Função para atualizar as informações do usuário logado: avatar, nome e tipo de perfil
+   * @returns {void}
+   */
   updateUserInfo = () => {
     document.getElementById(
       "avatar"
@@ -117,6 +146,11 @@ class Auth {
   };
 }
 
+/**
+ * @description Classe para manipulação do calendário de reservas. Responsável por exibir o calendário, listar as reservas e permitir a criação e edição de reservas.
+ * @class Calendar
+ * @param {Auth} auth Instância da classe Auth para utilização de informações do usuário logado nas requisições.
+ */
 class Calendar {
   constructor(auth) {
     this.auth = auth;
@@ -127,8 +161,16 @@ class Calendar {
     this.year = new Date().getFullYear();
     this.editMode = false;
     this.scheduleToEdit = null;
+
+    // Ao iniciar a instância, construir o calendário:
     this.buildCalendarData(this.month, this.year);
   }
+
+  /**
+   * @description Função para mudar o mês do calendário. Recebe como parâmetro a direção da mudança.
+   * @param {string} direction: string. Direção da mudança do mês: "next" para avançar um mês e "prev" para retroceder um mês.
+   * @returns {void}
+   */
 
   changeMonth = (direction) => {
     if (direction === "next") {
@@ -147,6 +189,12 @@ class Calendar {
     this.buildCalendarData(this.month, this.year);
   };
 
+  /**
+   * @description Função para construir os dados do calendário. Recebe como parâmetros o mês e o ano a serem exibidos. Caso não sejam informados, utiliza o mês e ano atuais.
+   * @param {*} month: number
+   * @param {*} year: number
+   * @returns {void}
+   */
   buildCalendarData = (
     month = new Date().getMonth(),
     year = new Date().getFullYear()
@@ -179,6 +227,12 @@ class Calendar {
     this.buildCalendarTable();
   };
 
+  /**
+   * @description Função para construir o container de um dia do calendário. Recebe como parâmetros o dia e as classes css a serem aplicadas ao container.
+   * @param {*} day: number
+   * @param {*} classes: string[]
+   * @returns  {HTMLElement}
+   */
   buildDayContainer = (day, classes) => {
     const div = document.createElement("div");
     div.classList.add("day");
@@ -194,6 +248,11 @@ class Calendar {
     `;
     return div;
   };
+
+  /**
+   * @description Função para construir a tabela do calendário. O método constrói a tabela e adiciona os eventos de clique nos botões de reservar. O dia atual é marcado com a classe 'today' e os dias anteriores ao dia atual são marcados com a classe 'inPast'.
+   * @returns {void}
+   */
 
   buildCalendarTable = () => {
     const table = document.createElement("table");
@@ -254,6 +313,10 @@ class Calendar {
     this.getSchedules();
   };
 
+  /**
+   * @description Função para buscar as reservas do mês e ano atual. As reservas são ordenadas por data e horário e exibidas no calendário.
+   * @returns {void}
+   */
   getSchedules = async () => {
     let token = localStorage.getItem("token");
     if (!token) return;
@@ -264,7 +327,7 @@ class Calendar {
 
     try {
       const result = await fetch(
-        `http://localhost:5000/schedules?month=${this.month + 1}&year=${
+        `${API_BASE_URL}/schedules?month=${this.month + 1}&year=${
           this.year
         }&token=${token}`,
         requestOptions
@@ -290,13 +353,16 @@ class Calendar {
           );
         });
       this.plotSchedules();
-      console.log(this.schedules);
     } catch (error) {
       console.error("Error:", error);
       document.getElementById("errorLogin").removeAttribute("hidden");
     }
   };
 
+  /**
+   * @description Função para limpar as reservas do calendário. Isso é feito para que as reservas sejam atualizadas sem duplicidade.
+   * @returns {void}
+   */
   clearSchedules = () => {
     let scheduleList = document.querySelectorAll(".schedule-list");
     scheduleList.forEach((schedule) => {
@@ -304,6 +370,10 @@ class Calendar {
     });
   };
 
+  /**
+   * @description Função para plotar as reservas no calendário. As reservas são exibidas no dia correspondente, com a hora de início e fim da reserva. Caso a reserva seja de outro usuário, é exibido um ícone de proibido. Caso a reserva seja do usuário logado, é exibido um ícone de bola. Reservas no passado são marcadas com a classe 'inPast'.
+   * @returns {void}
+   */
   plotSchedules = () => {
     this.clearSchedules();
     this.schedules.forEach((schedule) => {
@@ -358,6 +428,12 @@ class Calendar {
     setTooltip();
   };
 
+  /**
+   * @description Função para abrir o modal de reserva. Caso o usuário clique no botão de reservar, o modal é aberto. Caso o usuário clique em um dia do calendário, o modal é aberto com a data do dia clicado. Caso o dia clicado seja no passado, o modal não é aberto.
+   * @param {*} event
+   * @param {*} element
+   * @returns
+   */
   openScheduleModal = (event, element) => {
     if (event && event.target.classList.contains("schedule")) return;
     if (element && element.childNodes[0].classList.contains("inPast")) return;
@@ -374,12 +450,23 @@ class Calendar {
     }
   };
 
+  /**
+   * @description Função para fechar o modal de reserva
+   * @param {*} event
+   */
+
   closeScheduleModal = (event) => {
     document.getElementById("errorSchedule").setAttribute("hidden", true);
     document.getElementById("scheduleModal").close();
     this.editMode = false;
     this.scheduleToEdit = null;
   };
+
+  /**
+   * @description Função para salvar a reserva. A função é responsável por enviar a requisição para a API com os dados da reserva. Caso a reserva já exista, o método PATCH é utilizado. Caso a reserva seja nova, o método POST é utilizado.
+   * @param {*} event
+   * @returns {void}
+   */
 
   onSchedule = async (event) => {
     event.preventDefault();
@@ -410,16 +497,10 @@ class Calendar {
     };
 
     try {
-      const result = await fetch(
-        "http://localhost:5000/schedule",
-        requestOptions
-      );
-      console.log(result);
+      const result = await fetch(`${API_BASE_URL}/schedule`, requestOptions);
       if (result.status != 200) {
         throw new Error("Invalid credentials");
       }
-      console.log("chegou aqui");
-
       this.getSchedules();
       this.closeScheduleModal();
     } catch (error) {
@@ -427,6 +508,12 @@ class Calendar {
       document.getElementById("errorSchedule").removeAttribute("hidden");
     }
   };
+
+  /**
+   * @description Função para abrir o modal de edição de reserva. A função é responsável por abrir o modal de reserva com os dados da reserva a ser editada. Caso a reserva não seja do usuário logado, o modal não é aberto.
+   * @param {*} schedule
+   * @returns
+   */
 
   openModalToeditSchedule(schedule) {
     if (!schedule.isMine) return;
@@ -448,9 +535,11 @@ class Calendar {
   }
 }
 
+// Instâncias das classes Auth e Calendar
 let calendar = null;
 let auth = null;
 
+// Função para montar a aplicação
 const mounted = () => {
   window.onload = () => {
     auth = new Auth();
