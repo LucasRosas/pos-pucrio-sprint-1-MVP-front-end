@@ -539,12 +539,10 @@ class Calendar {
 let calendar = null;
 let auth = null;
 
-// Função para montar a aplicação
-const mounted = () => {
+// Função para montar a aplicação. Ao carregar a página, a instância da classe Auth é criada e, em seguida, a instância da classe Calendar é criada. A aplicação é montada e o calendário é exibido. A função está encapsulada em uma IIFE para evitar poluição do escopo global.
+(() => {
   window.onload = () => {
     auth = new Auth();
     calendar = new Calendar(auth);
   };
-};
-
-mounted();
+})();
