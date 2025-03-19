@@ -438,6 +438,7 @@ class Calendar {
     if (event && event.target.classList.contains("schedule")) return;
     if (element && element.childNodes[0].classList.contains("inPast")) return;
     document.getElementById("scheduleModal").showModal();
+    document.getElementById("deleteSchedule").style.display = "none";
     document.getElementById("saveSchedule").innerText = "Reservar";
     document.querySelector(".dialog-content>h3").innerText = "Reservar quadra";
     let inputDate = document.getElementById("inputDate");
@@ -455,7 +456,7 @@ class Calendar {
    * @param {*} event
    */
 
-  closeScheduleModal = (event) => {
+  closeScheduleModal = () => {
     document.getElementById("errorSchedule").setAttribute("hidden", true);
     document.getElementById("scheduleModal").close();
     this.editMode = false;
@@ -532,6 +533,31 @@ class Calendar {
     inputPlayers.value = schedule.players;
     document.getElementById("saveSchedule").innerText = "Salvar";
     document.querySelector(".dialog-content>h3").innerText = "Editar reserva";
+    document.getElementById("deleteSchedule").style.display = "block";
+  }
+
+  deleteSchedule() {
+    if (!this.scheduleToEdit) return;
+    let token = localStorage.getItem("token");
+    if (!token) return;
+    const myHeaders = new Headers();
+    myHeaders.append("Accept", "application/json");
+
+    const requestOptions = {
+      method: "DELETE",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    fetch(
+      `${API_BASE_URL}/schedule?token=${token}&id=${this.scheduleToEdit.id}`,
+      requestOptions
+    )
+      .then(() => {
+        this.getSchedules();
+        this.closeScheduleModal();
+      })
+      .catch((error) => console.log("error", error));
   }
 }
 

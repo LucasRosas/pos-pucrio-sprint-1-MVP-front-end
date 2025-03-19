@@ -24,6 +24,11 @@ button.secondary {
   background-color: #6c757d;
 }
 
+button.destructive {
+  color: white;
+  background-color: #8d3829;
+}
+
 .buttonGroup {
   display: flex;
   gap: 1rem;

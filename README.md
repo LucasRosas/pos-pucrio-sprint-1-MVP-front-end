@@ -53,11 +53,11 @@ Para rodar o projeto localmente, siga os passos abaixo:
 O sistema já vem com dois usuários cadastrados para fins de teste:
 
 ```sh
-Usuário: luanasilva
+Usuário: joaofonseca
 Senha: 654321
 ```
 
 ```sh
-Usuário: joseferreira
+Usuário: biahaddad
 Senha: 123456
 ```
